@@ -1,0 +1,52 @@
+/**
+ * Copyright (c) 2014, Facebook, Inc. All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * 
+ */
+
+'use strict';
+
+
+
+const chalk = require('chalk');
+const diffStrings = require('./diffStrings');var _require =
+require('jest-matcher-utils');const getType = _require.getType;
+const jsxLikeExtension = require('pretty-format/plugins/ReactTestComponent');
+const prettyFormat = require('pretty-format');
+
+const NO_DIFF_MESSAGE = require('./constants').NO_DIFF_MESSAGE;
+
+// Generate a string that will highlight the difference between two values
+// with green and red. (similar to how github does code diffing)
+function diff(a, b, options) {
+  if (a === b) {
+    return NO_DIFF_MESSAGE;
+  }
+
+  if (getType(a) !== getType(b)) {
+    return (
+      'Comparing two different types of values:\n' +
+      `  Expected: ${ chalk.green(getType(a)) }\n` +
+      `  Received: ${ chalk.red(getType(b)) }`);
+
+  }
+
+  switch (getType(a)) {
+    case 'string':
+      return diffStrings(String(a), String(b), options);
+    case 'number':
+    case 'boolean':
+      return null;
+    default:
+      return diffStrings(
+      prettyFormat(a, { plugins: [jsxLikeExtension] }, options),
+      prettyFormat(b, { plugins: [jsxLikeExtension] }, options));}
+
+
+}
+
+module.exports = diff;
